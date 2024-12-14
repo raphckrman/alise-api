@@ -1,7 +1,13 @@
 import { RestManager } from "../rest/RESTManager";
-import { ACCOUNT_CONNECTIONS_HISTORY, ACCOUNT_CONSUMPTIONS_HISTORY, ACCOUNT_INFORMATIONS, BASE_URL } from "../rest/endpoints";
+import {
+    ACCOUNT_CONNECTIONS_HISTORY,
+    ACCOUNT_CONSUMPTIONS_HISTORY,
+    ACCOUNT_FINANCIAL_HISTORY,
+    ACCOUNT_INFORMATIONS,
+    BASE_URL
+} from "../rest/endpoints";
 import { Account } from "../structures/Account";
-import { ConnectionHistoryEvent, ConsumptionHistoryEvent } from "../types/account";
+import { ConnectionHistoryEvent, ConsumptionHistoryEvent, FinancialHistoryEvent } from "../types/account";
 import { findBetween } from "../utils/findBetween";
 
 const manager = new RestManager(BASE_URL());
@@ -62,6 +68,29 @@ export const getConsumptionsHistory = async (token: string): Promise<Array<Consu
         const amount = -parseFloat(findBetween(item, "<td align='right'><b>", " &euro;</b></td>")[0].replace(",", "."));
 
         return { label, type, date, quantity, amount };
+    });
+
+    return result;
+};
+
+export const getFinancialHistory = async (token: string): Promise<Array<FinancialHistoryEvent>> => {
+    const { data } = await manager.get<string>(ACCOUNT_FINANCIAL_HISTORY(), {
+        Cookie: `PHPSESSID=${token}`
+    });
+
+    const rawEventsList = findBetween(
+        data,
+        "<tr class='detail'>",
+        "<tr class='detail'>"
+    );
+    const result: Array<FinancialHistoryEvent> = rawEventsList.map(item => {
+        const [day, month, year] = findBetween(item, "<td class='detail_date'>", "</td>")[0].split("/").map(Number);
+        const date = new Date(2000 + year, month - 1, day);
+        const label = findBetween(item, "<td class='detail_data'>", "</td>")[0];
+        const debit = findBetween(item, "<td class='detail_debit_montant'>", "</td>")[0]?.replace(",", ".") ?? "0.0";
+        const credit = findBetween(item, "<td class='detail_credit_montant'>", "</td>")[0]?.replace(",", ".") ?? "0.0";
+        const amount = (isNaN(parseFloat(credit)) || credit.trim() === "" ? 0 : parseFloat(credit)) - -(isNaN(parseFloat(debit)) || debit.trim() === "" ? 0 : parseFloat(debit));
+        return { label, date, amount };
     });
 
     return result;

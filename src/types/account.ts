@@ -10,3 +10,9 @@ export interface ConsumptionHistoryEvent {
     quantity: number;
     amount: number;
 }
+
+export interface FinancialHistoryEvent {
+    label: string;
+    date: Date;
+    amount: number;
+}
