@@ -3,3 +3,4 @@ dist
 .git
 .idea
 scripts
+package-lock.json

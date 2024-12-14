@@ -5,7 +5,6 @@ export class Account {
         public email: string,
         public phoneNumber: string,
         public faxNumber: string,
-        public address: string,
-    ) {
-    }
+        public address: string
+    ) {}
 }
