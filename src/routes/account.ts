@@ -1,7 +1,7 @@
 import { RestManager } from "../rest/RESTManager";
-import { ACCOUNT_CONNECTIONS_HISTORY, ACCOUNT_INFORMATIONS, BASE_URL } from "../rest/endpoints";
+import { ACCOUNT_CONNECTIONS_HISTORY, ACCOUNT_CONSUMPTIONS_HISTORY, ACCOUNT_INFORMATIONS, BASE_URL } from "../rest/endpoints";
 import { Account } from "../structures/Account";
-import { ConnectionHistoryEvent } from "../types/account";
+import { ConnectionHistoryEvent, ConsumptionHistoryEvent } from "../types/account";
 import { findBetween } from "../utils/findBetween";
 
 const manager = new RestManager(BASE_URL());
@@ -38,6 +38,30 @@ export const getConnectionsHistory = async (token: string): Promise<Array<Connec
         const date = new Date(year, month - 1, day, hours, minutes);
         const label = findBetween(item, "<td>", "</td>")[0];
         return { label, date };
+    });
+
+    return result;
+};
+
+export const getConsumptionsHistory = async (token: string): Promise<Array<ConsumptionHistoryEvent>> => {
+    const { data } = await manager.get<string>(ACCOUNT_CONSUMPTIONS_HISTORY(), {
+        Cookie: `PHPSESSID=${token}`
+    });
+
+    const rawEventsList = findBetween(data, "<tr class='detail_conso'>", "</tr>");
+
+    const result: Array<ConsumptionHistoryEvent> = rawEventsList.map(item => {
+        const rawElements = findBetween(item, "<td>", "</td>");
+
+        const [day, month, year, hours, minutes] = findBetween(rawElements[0], "", " <b>")[0].split(/[\s/:]/).map(Number);
+
+        const date = new Date(year, month - 1, day, hours, minutes);
+        const label = findBetween(rawElements[0], "<b>", "</b>")[0];
+        const type = rawElements[1];
+        const quantity = parseFloat(findBetween(item, "<td align='center'>", "</td>")[0]);
+        const amount = -parseFloat(findBetween(item, "<td align='right'><b>", " &euro;</b></td>")[0].replace(",", "."));
+
+        return { label, type, date, quantity, amount };
     });
 
     return result;
