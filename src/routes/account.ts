@@ -1,5 +1,6 @@
 import { RestManager } from "../rest/RESTManager";
 import {
+    ACCOUNT_BOOKINGS,
     ACCOUNT_CONNECTIONS_HISTORY,
     ACCOUNT_CONSUMPTIONS_HISTORY,
     ACCOUNT_FINANCIAL_HISTORY,
@@ -7,6 +8,7 @@ import {
     BASE_URL
 } from "../rest/endpoints";
 import { Account } from "../structures/Account";
+import { BookingDay } from "../structures/BookingDay";
 import { ConnectionHistoryEvent, ConsumptionHistoryEvent, FinancialHistoryEvent } from "../types/account";
 import { findBetween } from "../utils/findBetween";
 
@@ -93,5 +95,23 @@ export const getFinancialHistory = async (token: string): Promise<Array<Financia
         return { label, date, amount };
     });
 
-    return result;
+    return result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
+
+export const getBookings = async (token: string): Promise<Array<BookingDay>> => {
+    const { data } = await manager.get<string>(ACCOUNT_BOOKINGS(), {
+        Cookie: `PHPSESSID=${token}`
+    });
+
+    const availableBookings = findBetween(data, '<table width="100%" cellpadding=2 cellspacing=0 border=0><tr><td align=center>', '" w');
+
+    return availableBookings.map(item => {
+        if (findBetween(item + '"', '<td id="', '"').length === 0) return null;
+        const [year, month, day] = findBetween(item + '"', '<td id="', '"')[0].split("-").map(Number);
+        const date = new Date(year, month - 1, day);
+        const identifier = findBetween(item, "?date=", ' "')[0];
+        const booked = findBetween(item, '<a href="', ' "?date').some(url => url.includes("aliReservationCancel.php"));
+        const canBook = identifier ? true : false;
+        return new BookingDay(identifier ?? null, booked, canBook, date);
+    }).filter(item => item !== null);
 };
