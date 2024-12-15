@@ -12,7 +12,8 @@ import { ConnectionHistoryEvent, ConsumptionHistoryEvent, FinancialHistoryEvent 
 
 export class Client {
     constructor(
-        private credentials: AuthCredentials
+        private credentials: AuthCredentials,
+        public account?: Account
     ) {}
 
     async getBookings(): Promise<Array<BookingDay>> {

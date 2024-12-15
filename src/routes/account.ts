@@ -5,7 +5,11 @@ import {
     ACCOUNT_CONSUMPTIONS_HISTORY,
     ACCOUNT_FINANCIAL_HISTORY,
     ACCOUNT_INFORMATIONS,
-    BASE_URL
+    BASE_URL,
+    BOOK_MEAL,
+    BOOKING_GET_DETAILS,
+    UNBOOK_MEAL,
+    UNBOOKING_GET_DETAILS
 } from "../rest/endpoints";
 import { Account } from "../structures/Account";
 import { BookingDay } from "../structures/BookingDay";
@@ -112,6 +116,22 @@ export const getBookings = async (token: string): Promise<Array<BookingDay>> => 
         const identifier = findBetween(item, "?date=", ' "')[0];
         const booked = findBetween(item, '<a href="', ' "?date').some(url => url.includes("aliReservationCancel.php"));
         const canBook = identifier ? true : false;
-        return new BookingDay(identifier ?? null, booked, canBook, date);
+        return new BookingDay(token, identifier ?? null, booked, canBook, date);
     }).filter(item => item !== null);
 };
+
+export const updateBook = async (token: string, identifier: string, quantity = 1, cancel = false): Promise<boolean> => {
+    await manager.get<string>(cancel ? UNBOOKING_GET_DETAILS(identifier) : BOOKING_GET_DETAILS(identifier), {
+        Cookie: `PHPSESSID=${token}`
+    });
+    console.log(cancel);
+    await manager.post<string>(cancel ? UNBOOK_MEAL() : BOOK_MEAL(), cancel ? "ref=cancel&btnOK.x=0&btnOK.y=0&valide_form=1" : "CONS_QUANTITE=" + quantity.toString() + "&restaurant=1&btnOK.x=0&btnOK.y=0&valide_form=1", {
+        headers: {
+            "Cookie":       `PHPSESSID=${token}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    });
+
+    return true;
+};
+

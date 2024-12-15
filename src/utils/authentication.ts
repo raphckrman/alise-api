@@ -1,10 +1,11 @@
 import { RestManager } from "../rest/RESTManager";
 import { Client } from "../structures/Client";
 import { AUTH_LOGIN, BASE_URL } from "../rest/endpoints";
+import { getAccountInformations } from "../routes/account";
 
 const manager = new RestManager(BASE_URL());
 
-export const authenticateWithCredentials = async (username: string, password: string, site: string, remember = true): Promise<Client> => {
+export const authenticateWithCredentials = async (username: string, password: string, site: string, remember = true, minimalist = false): Promise<Client> => {
     const { cookies } = await manager.post(AUTH_LOGIN(site), {
         txtLogin:       username,
         txtMdp:         password,
@@ -19,9 +20,12 @@ export const authenticateWithCredentials = async (username: string, password: st
         matches.push(match[1]);
     }
 
+    const cookie = matches[matches.length - 1];
+
+
     return new Client({
-        token:    matches[matches.length - 1],
+        token:    cookie,
         username: remember ? username : null,
         password: remember ? password : null
-    });
+    }, !minimalist ? await getAccountInformations(cookie) : undefined);
 };
