@@ -1,7 +1,13 @@
 import { Account } from "./Account";
 import { BookingDay } from "./BookingDay";
 import { AuthCredentials } from "../types/client";
-import { getAccountInformations, getBookings, getConnectionsHistory, getFinancialHistory } from "../routes/account";
+import {
+    getAccountInformations,
+    getBookings,
+    getConnectionsHistory,
+    getFinancialHistory,
+    updateBook
+} from "../routes/account";
 import { ConnectionHistoryEvent, FinancialHistoryEvent } from "../types/account";
 
 export class Client {
@@ -10,6 +16,10 @@ export class Client {
         public account?: Account
     ) {}
 
+    async bookDay(identifier: string, quantity = 1, cancel = false): Promise<BookingDay> {
+        await updateBook(this.credentials.token, identifier, quantity, false);
+        return new BookingDay(this.credentials.token, identifier, !cancel, true);
+    }
     async getBookings(): Promise<Array<BookingDay>> {
         return getBookings(this.credentials.token);
     }

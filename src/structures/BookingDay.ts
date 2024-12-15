@@ -5,14 +5,14 @@ export class BookingDay {
     identifier: string | null;
     booked: boolean;
     canBook: boolean;
-    date: Date;
+    date?: Date;
 
     constructor(
         token: string,
         identifier: string | null,
         booked: boolean,
         canBook: boolean,
-        date: Date
+        date?: Date
     ) {
         if (!token) throw new Error("Token is required.");
         if (!(date instanceof Date)) throw new Error("Invalid date provided.");
