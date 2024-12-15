@@ -17,7 +17,7 @@ export class Client {
     ) {}
 
     async bookDay(identifier: string, quantity = 1, cancel = false): Promise<BookingDay> {
-        await updateBook(this.credentials.token, identifier, quantity, false);
+        await updateBook(this.credentials.token, identifier, quantity, cancel);
         return new BookingDay(this.credentials.token, identifier, !cancel, true);
     }
     async getBookings(): Promise<Array<BookingDay>> {

@@ -87,7 +87,7 @@ export const getBookings = async (token: string): Promise<Array<BookingDay>> => 
     return availableBookings.map(item => {
         if (findBetween(item + '"', '<td id="', '"').length === 0) return null;
         const [year, month, day] = findBetween(item + '"', '<td id="', '"')[0].split("-").map(Number);
-        const date = new Date(year, month - 1, day);
+        const date = new Date(Date.UTC(year, month - 1, day - 1));
         const identifier = findBetween(item, "?date=", ' "')[0];
         const booked = findBetween(item, '<a href="', ' "?date').some(url => url.includes("aliReservationCancel.php"));
         const canBook = identifier ? true : false;

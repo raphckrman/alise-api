@@ -14,9 +14,6 @@ export class BookingDay {
         canBook: boolean,
         date?: Date
     ) {
-        if (!token) throw new Error("Token is required.");
-        if (!(date instanceof Date)) throw new Error("Invalid date provided.");
-
         this.token = token;
         this.identifier = identifier ?? null;
         this.booked = booked;
