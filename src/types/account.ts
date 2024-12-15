@@ -3,14 +3,6 @@ export interface ConnectionHistoryEvent {
     date: Date;
 }
 
-export interface ConsumptionHistoryEvent {
-    label: string;
-    type: string;
-    date: Date;
-    quantity: number;
-    amount: number;
-}
-
 export interface FinancialHistoryEvent {
     label: string;
     date: Date;
