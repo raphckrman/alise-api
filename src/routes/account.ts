@@ -1,5 +1,6 @@
 import { RestManager } from "../rest/RESTManager";
 import {
+    ACCOUNT_BARCODE,
     ACCOUNT_BOOKINGS,
     ACCOUNT_CONNECTIONS_HISTORY,
     ACCOUNT_FINANCIAL_HISTORY,
@@ -110,3 +111,11 @@ export const updateBook = async (token: string, identifier: string, quantity = 1
     return true;
 };
 
+export const getBarcode = async (token: string): Promise<Blob> => {
+    const { data } = await manager.get<Blob>(ACCOUNT_BARCODE(), {
+        Cookie: `PHPSESSID=${token}`
+    });
+
+
+    return data;
+};

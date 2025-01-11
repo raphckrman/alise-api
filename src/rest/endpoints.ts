@@ -11,3 +11,4 @@ export const BOOKING_GET_DETAILS = (identifier: string) => "aliReservationDetail
 export const BOOK_MEAL = () => "aliReservationDetail.php"
 export const UNBOOKING_GET_DETAILS = (identifier: string) => "aliReservationCancel.php?date=" + identifier
 export const UNBOOK_MEAL = () => "aliReservationCancel.php"
+export const ACCOUNT_BARCODE = () => "aliGenQrCode.php"

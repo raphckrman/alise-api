@@ -23,6 +23,11 @@ export class RestManager {
             redirect: "manual"
         });
 
+        if (response.headers.get("Content-Type")?.includes("image")) {
+            const blob = await response.blob();
+            return { cookies: response.headers.get("Set-Cookie")?.split(";") ?? [], data: blob as T };
+        }
+        
         const responseData = await response.text();
         return {cookies: response.headers.get("Set-Cookie")?.split(";") ?? [], data: responseData as T};
     }

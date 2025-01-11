@@ -3,6 +3,7 @@ import { BookingDay } from "./BookingDay";
 import { AuthCredentials } from "../types/client";
 import {
     getAccountInformations,
+    getBarcode,
     getBookings,
     getConnectionsHistory,
     getFinancialHistory,
@@ -20,6 +21,9 @@ export class Client {
         await updateBook(this.credentials.token, identifier, quantity, cancel);
         return new BookingDay(this.credentials.token, identifier, !cancel, true);
     }
+    async getBarcode(): Promise<boolean> {
+        return getBarcode(this.credentials.token);
+    }
     async getBookings(): Promise<Array<BookingDay>> {
         return getBookings(this.credentials.token);
     }
@@ -32,6 +36,4 @@ export class Client {
     async getInformations(): Promise<Account> {
         return getAccountInformations(this.credentials.token);
     }
-
-
 }
