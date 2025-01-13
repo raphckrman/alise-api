@@ -21,7 +21,7 @@ export class Client {
         await updateBook(this.credentials.token, identifier, quantity, cancel);
         return new BookingDay(this.credentials.token, identifier, !cancel, true);
     }
-    async getBarcode(): Promise<boolean> {
+    async getBarcode(): Promise<Blob> {
         return getBarcode(this.credentials.token);
     }
     async getBookings(): Promise<Array<BookingDay>> {
