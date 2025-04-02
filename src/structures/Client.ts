@@ -1,5 +1,6 @@
 import { Account } from "./Account";
 import { BookingDay } from "./BookingDay";
+import { DayMenu } from "./DayMenu";
 import { AuthCredentials } from "../types/client";
 import {
     getAccountInformations,
@@ -7,6 +8,7 @@ import {
     getBookings,
     getConnectionsHistory,
     getFinancialHistory,
+    getWeeklyMenu,
     updateBook
 } from "../routes/account";
 import { ConnectionHistoryEvent, FinancialHistoryEvent } from "../types/account";
@@ -35,5 +37,8 @@ export class Client {
     }
     async getInformations(): Promise<Account> {
         return getAccountInformations(this.credentials.token);
+    }
+    async getWeeklyMenu(): Promise<Array<DayMenu>> {
+        return getWeeklyMenu(this.credentials.token);
     }
 }

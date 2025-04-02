@@ -9,10 +9,12 @@ import {
     BOOK_MEAL,
     BOOKING_GET_DETAILS,
     UNBOOK_MEAL,
-    UNBOOKING_GET_DETAILS
+    UNBOOKING_GET_DETAILS,
+    WEEKLY_MENU
 } from "../rest/endpoints";
 import { Account } from "../structures/Account";
 import { BookingDay } from "../structures/BookingDay";
+import { DayMenu } from "../structures/DayMenu";
 import { ConnectionHistoryEvent, FinancialHistoryEvent } from "../types/account";
 import { findBetween } from "../utils/findBetween";
 
@@ -118,4 +120,36 @@ export const getBarcode = async (token: string): Promise<Blob> => {
 
 
     return data;
+};
+
+export const getWeeklyMenu = async (token: string): Promise<Array<DayMenu>> => {
+    const { data } = await manager.get<string>(WEEKLY_MENU(), {
+        Cookie: `PHPSESSID=${token}`
+    });
+
+    const rawWeekDays = findBetween(data, '<tr class="table_header">', "</tr>")[0];
+    const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+    const parseDate = (dayString: string): Date => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [_, dayNumber, monthName, year] = dayString.replaceAll("<br>", " ").trim().split(" ");
+        return new Date(Date.UTC(parseInt(year, 10), MONTHS.indexOf(monthName), parseInt(dayNumber, 10)));
+    };
+
+    const weekDays = findBetween(rawWeekDays, "<strong>", "</strong>").map(parseDate);
+
+    const menus = findBetween(data, "<tr>", "</tr>");
+
+    const extractMeals = (menuRow: string): Array<Array<string>> =>
+        findBetween(menuRow, '<td width="10%" style="text-align: center; padding-top: 1em;">', "</td>")
+            .map(dayMeal => dayMeal
+                .split(/<br\s*\/?>/i)
+                .map(subItem => subItem.replaceAll(/<\/?[^>]+(>|$)/g, "").trim())
+                .filter(subItem => subItem.length !== 0)
+            );
+
+    const lunchItems = extractMeals(menus[3]);
+    const dinnerItems = extractMeals(menus[4]);
+
+    return weekDays.map((day, index) => new DayMenu(day, lunchItems[index] ?? [], dinnerItems[index] ?? []));
 };
