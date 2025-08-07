@@ -1,3 +1,6 @@
+> [!CAUTION]
+> Alise is presently in *liquidation judiciaire* proceedings. Therefore, this project is no longer maintained and has been archived.
+
 # alise-api
 
 [![npm](https://img.shields.io/npm/l/alise-api)](https://www.npmjs.com/package/alise-api)
