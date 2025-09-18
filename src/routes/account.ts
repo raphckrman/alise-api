@@ -41,7 +41,7 @@ export const getAccountInformations = async (token: string): Promise<Account> =>
         Cookie: `PHPSESSID=${token}`
       })
 
-      balance = parseFloat(findBetween(financialData, "<td class='titre_montant'>", " &euro;</td>")[1]);
+      balance = parseFloat(findBetween(financialData, "<td class='titre_montant'>", " &euro;</td>")[0]);
     }
     
     const [day, month, year] = findBetween(data, "<time>", "</time>")[0].split("/").map(Number);
