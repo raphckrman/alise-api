@@ -22,7 +22,7 @@ const manager = new RestManager(BASE_URL());
 
 export const getAccountInformations = async (token: string): Promise<Account> => {
     const { data } = await manager.get<string>(ACCOUNT_INFORMATIONS(), {
-        Cookie: `PHPSESSID=${token}`
+      Cookie: `PHPSESSID=${token}`
     });
 
     const establishment = findBetween(data, "<nobr>", "<nobr>       </h1>")[0];
@@ -32,8 +32,18 @@ export const getAccountInformations = async (token: string): Promise<Account> =>
     const phoneNumber = findBetween(data, "id=\"rsp_tel2\" value=\"", "\"")[0];
     const faxNumber = findBetween(data, "id=\"rsp_tel1\" value=\"", "\"")[0];
     const address = findBetween(data, "id=\"rsp_adr1\" value=\"", "\"")[0] + "" + findBetween(data, "id=\"textfield2\" value=\"", "\"")[0] + " " + findBetween(data, "id=\"rsp_cp\" value=\"", "\"")[0] + " " + findBetween(data, "id=\"rsp_ville\" value=\"", "\"")[0];
-    const balance = parseFloat(findBetween(data, "<b>", " &#128; </b>")[0].replace(",", "."));
+    let balance: number = 0;
 
+    try {
+      balance = parseFloat(findBetween(data, "<b>", " &#128; </b>")[0].replace(",", "."));
+    } catch {
+      const { data: financialData } = await manager.get<string>(ACCOUNT_FINANCIAL_HISTORY(), {
+        Cookie: `PHPSESSID=${token}`
+      })
+
+      balance = parseFloat(findBetween(financialData, "<td class='titre_montant'>", " &euro;</td>")[1]);
+    }
+    
     const [day, month, year] = findBetween(data, "<time>", "</time>")[0].split("/").map(Number);
     const estimatedAt = new Date(year, month - 1, day);
 
