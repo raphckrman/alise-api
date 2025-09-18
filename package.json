@@ -1,6 +1,6 @@
 {
   "name": "alise-api",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A wrapper around Alise internal API.",
   "repository": "github:raphckrman/alise-api",
   "main": "./dist/index.js",
